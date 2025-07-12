@@ -13,6 +13,8 @@ function Gallery({ newUploadedPhoto }) {
   const [error, setError] = useState(null);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [deleteStatus, setDeleteStatus] = useState(null);
+  console.log("API Base URL:", process.env.REACT_APP_API_URL);
+
 
   const fetchPhotos = useCallback(async () => {
     try {
