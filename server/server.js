@@ -35,7 +35,8 @@ if (fs.existsSync(dataFilePath)) {
 }
 
 // Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, 'uploads');
+const uploadsDir = path.join(__dirname, process.env.UPLOADS_FOLDER || 'uploads');
+
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -74,7 +75,7 @@ app.get('/api/photos', (req, res) => {
     let filteredPhotos = photos;
     if (search) {
       const searchLower = search.toLowerCase();
-      filteredPhotos = photos.filter(photo => 
+      filteredPhotos = photos.filter(photo =>
         photo.title && photo.title.toLowerCase().includes(searchLower)
       );
     }
@@ -96,9 +97,10 @@ app.post('/api/photos', upload.single('photo'), (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
-    
+
     const { title, description } = req.body;
-    const url = `/uploads/${req.file.filename}`;
+    const url = `${process.env.BASE_URL}/uploads/${req.file.filename}`;
+
 
     const photo = {
       _id: Date.now().toString(), // Generate a unique ID
@@ -110,10 +112,10 @@ app.post('/api/photos', upload.single('photo'), (req, res) => {
 
     // Add to photos array
     photos.unshift(photo);
-    
+
     // Save to file
     savePhotosData();
-    
+
     res.status(201).json(photo);
   } catch (error) {
     console.error('Error uploading photo:', error);
@@ -133,12 +135,12 @@ app.use('/uploads', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
-  
+
   // Log the file path being requested
   const filePath = path.join(__dirname, 'uploads', req.path);
   console.log(`Attempting to serve file: ${filePath}`);
   console.log(`File exists: ${fs.existsSync(filePath)}`);
-  
+
   next();
 }, express.static(path.join(__dirname, 'uploads')));
 
@@ -148,10 +150,10 @@ app.get('/api/check-file', (req, res) => {
   if (!filePath) {
     return res.status(400).json({ exists: false, message: 'No file path provided' });
   }
-  
+
   const fullPath = path.join(__dirname, filePath.replace(/^\/+/, ''));
   const exists = fs.existsSync(fullPath);
-  
+
   console.log(`Checking file: ${fullPath}, exists: ${exists}`);
   res.json({ exists, path: fullPath });
 });
@@ -173,25 +175,25 @@ app.get('/api/photos/:id', (req, res) => {
 app.delete('/api/photos/:id', (req, res) => {
   try {
     const photoIndex = photos.findIndex(p => p._id === req.params.id);
-    
+
     if (photoIndex === -1) {
       return res.status(404).json({ message: 'Photo not found' });
     }
-    
+
     // Get the photo to be deleted
     const deletedPhoto = photos[photoIndex];
-    
+
     // Remove the photo from the array
     photos.splice(photoIndex, 1);
-    
+
     // Save the updated photos array
     savePhotosData();
-    
+
     // Try to delete the actual file from uploads directory
     try {
       const filename = deletedPhoto.url.split('/').pop();
-      const filePath = path.join(uploadsDir, filename);
-      
+      const filePath = path.join(__dirname, process.env.UPLOADS_FOLDER || 'uploads', filename);
+
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
         console.log(`Deleted file: ${filePath}`);
@@ -200,7 +202,7 @@ app.delete('/api/photos/:id', (req, res) => {
       console.error('Error deleting file:', fileError);
       // Continue even if file deletion fails
     }
-    
+
     res.json({ message: 'Photo deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
