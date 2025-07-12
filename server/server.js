@@ -39,7 +39,8 @@ if (fs.existsSync(dataFilePath)) {
 }
 
 // Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, 'uploads');
+const uploadsDir = '/tmp/uploads';
+
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -133,18 +134,8 @@ app.use('/uploads', (req, res, next) => {
 });
 
 // Serve uploaded files with proper CORS headers
-app.use('/uploads', (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  
-  // Log the file path being requested
-  const filePath = path.join(__dirname, 'uploads', req.path);
-  console.log(`Attempting to serve file: ${filePath}`);
-  console.log(`File exists: ${fs.existsSync(filePath)}`);
-  
-  next();
-}, express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadsDir));
+
 
 // Add a route to check if a file exists
 app.get('/api/check-file', (req, res) => {
