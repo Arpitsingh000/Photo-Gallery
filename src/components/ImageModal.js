@@ -10,7 +10,7 @@ function ImageModal({ photo, onClose, onDelete }) {
   
   const imageUrl = photo.url.startsWith('http') 
     ? photo.url 
-    : `http://localhost:5000${photo.url}`;
+    : `https://photo-gallery-tulh.onrender.com${photo.url}`;
     
   const handleDelete = async () => {
     if (!window.confirm('Are you sure you want to delete this photo?')) {
@@ -21,7 +21,7 @@ function ImageModal({ photo, onClose, onDelete }) {
       setIsDeleting(true);
       setDeleteError(null);
       
-      await axios.delete(`http://localhost:5000/api/photos/${photo._id}`);
+      await axios.delete(`https://photo-gallery-tulh.onrender.com/api/photos/${photo._id}`);
       
       // Close the modal and notify parent component
       onClose();
