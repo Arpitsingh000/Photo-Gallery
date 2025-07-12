@@ -18,7 +18,7 @@ function Gallery({ newUploadedPhoto }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`http://https://photo-gallery-tulh.onrender.com/api/photos?page=${page}&search=${searchQuery}`);
+      const response = await axios.get(`https://photo-gallery-tulh.onrender.com/api/photos?page=${page}&search=${searchQuery}`);
       
       if (response.data.length === 0) {
         setHasMore(false);
@@ -165,7 +165,7 @@ function Gallery({ newUploadedPhoto }) {
                       console.error('Image failed to load:', photo.url);
                       
                       // Check if the file exists on the server
-                      axios.get(`http://localhost:5000/api/check-file?path=${photo.url}`)
+                      axios.get(`https://photo-gallery-tulh.onrender.com/api/check-file?path=${photo.url}`)
                         .then(response => {
                           console.log('File check result:', response.data);
                         })
