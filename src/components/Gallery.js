@@ -18,7 +18,7 @@ function Gallery({ newUploadedPhoto }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`http://localhost:5000/api/photos?page=${page}&search=${searchQuery}`);
+      const response = await axios.get(`http://https://photo-gallery-tulh.onrender.com/api/photos?page=${page}&search=${searchQuery}`);
       
       if (response.data.length === 0) {
         setHasMore(false);
