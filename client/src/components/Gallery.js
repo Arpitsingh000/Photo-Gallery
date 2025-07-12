@@ -18,8 +18,9 @@ function Gallery({ newUploadedPhoto }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`http://localhost:5000/api/photos?page=${page}&search=${searchQuery}`);
-      
+      const response = await axios.get(`https://photo-gallery-hu3i.onrender.com/api/photos?page=${page}&search=${searchQuery}`);
+
+
       if (response.data.length === 0) {
         setHasMore(false);
       } else {
@@ -32,11 +33,11 @@ function Gallery({ newUploadedPhoto }) {
       setLoading(false);
     }
   }, [page, searchQuery]);
-  
+
   useEffect(() => {
     fetchPhotos();
   }, [fetchPhotos]);
-  
+
   // Handle new uploaded photo from sidebar
   useEffect(() => {
     if (newUploadedPhoto) {
@@ -59,18 +60,18 @@ function Gallery({ newUploadedPhoto }) {
   const openPhotoModal = (photo) => {
     setSelectedPhoto(photo);
   };
-  
+
   const closePhotoModal = () => {
     setSelectedPhoto(null);
   };
-  
+
   const handleDeletePhoto = (photoId) => {
     // Remove the deleted photo from the state
     setPhotos(prevPhotos => prevPhotos.filter(photo => photo._id !== photoId));
-    
+
     // Show success message
     setDeleteStatus({ type: 'success', message: 'Photo deleted successfully' });
-    
+
     // Clear the message after 3 seconds
     setTimeout(() => {
       setDeleteStatus(null);
@@ -80,7 +81,7 @@ function Gallery({ newUploadedPhoto }) {
   // Group photos into categories for Netflix-style rows
   const getPhotosByCategory = () => {
     if (photos.length === 0) return [];
-    
+
     // If search is active, just show all results in one row
     if (searchQuery) {
       return [{
@@ -88,20 +89,20 @@ function Gallery({ newUploadedPhoto }) {
         photos: photos
       }];
     }
-    
+
     // Create rows
     const categories = [];
-    
+
     // Add all photos in a row
     categories.push({
       title: 'All Photos',
       photos: photos
     });
-    
+
     return categories;
   };
 
-  
+
   const photoCategories = getPhotosByCategory();
 
   return (
@@ -118,24 +119,25 @@ function Gallery({ newUploadedPhoto }) {
           <button className="search-button">🔍</button>
         </div>
       </div>
-      
+
       {error && <div className="error-message">{error}</div>}
-      
+
       {photoCategories.length > 0 ? (
         photoCategories.map((category, categoryIndex) => (
           <div key={categoryIndex}>
             <h2 className="row-title">{category.title}</h2>
             <div className="photo-grid">
               {category.photos.map((photo, index) => (
-                <div 
-                  key={photo._id || `${categoryIndex}-${index}`} 
+                <div
+                  key={photo._id || `${categoryIndex}-${index}`}
                   className="photo-item"
                   onClick={() => openPhotoModal(photo)}
                 >
                   {/* Add image loading state */}
                   <div className="image-loading"></div>
-                  <img 
-                    src={photo.url.startsWith('http') ? photo.url : `http://localhost:5000${photo.url}`} 
+                  <img
+                    src={photo.url.startsWith('http') ? photo.url : `https://photo-gallery-hu3i.onrender.com${photo.url}`}
+
                     alt={photo.title || 'Gallery image'}
                     onLoad={(e) => {
                       console.log('Image loaded successfully:', photo.url);
@@ -144,12 +146,12 @@ function Gallery({ newUploadedPhoto }) {
                       if (loadingEl && loadingEl.classList.contains('image-loading')) {
                         loadingEl.style.display = 'none';
                       }
-                      
+
                       // Adjust container based on image dimensions
                       const img = e.target;
                       const container = img.parentElement;
                       const aspectRatio = img.naturalWidth / img.naturalHeight;
-                      
+
                       // Apply custom class based on aspect ratio
                       if (aspectRatio > 1.7) { // Very wide images
                         container.classList.add('photo-item-wide');
@@ -163,16 +165,17 @@ function Gallery({ newUploadedPhoto }) {
                     }}
                     onError={(e) => {
                       console.error('Image failed to load:', photo.url);
-                      
+
                       // Check if the file exists on the server
-                      axios.get(`http://localhost:5000/api/check-file?path=${photo.url}`)
+                      axios.get(`https://photo-gallery-hu3i.onrender.com/api/check-file?path=${photo.url}`)
+
                         .then(response => {
                           console.log('File check result:', response.data);
                         })
                         .catch(error => {
                           console.error('Error checking file:', error);
                         });
-                      
+
                       e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
                       e.target.alt = 'Failed to load image';
                       // Remove loading indicator on error too
@@ -194,28 +197,28 @@ function Gallery({ newUploadedPhoto }) {
       ) : !loading && (
         <div className="no-photos">No photos found. Open the menu to upload some!</div>
       )}
-      
+
       {loading && <div className="loading">Loading...</div>}
-      
+
       {!loading && hasMore && photos.length > 0 && (
         <button onClick={loadMore} className="load-more">
           Load More
         </button>
       )}
-      
+
       {!hasMore && photos.length > 0 && (
         <div className="end-message">You've reached the end of the gallery</div>
       )}
-      
+
       {/* Image Modal for fullscreen view */}
       {selectedPhoto && (
-        <ImageModal 
-          photo={selectedPhoto} 
+        <ImageModal
+          photo={selectedPhoto}
           onClose={closePhotoModal}
           onDelete={handleDeletePhoto}
         />
       )}
-      
+
       {/* Delete status message */}
       {deleteStatus && (
         <div className={`status-message ${deleteStatus.type}`}>
