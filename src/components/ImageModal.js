@@ -8,9 +8,14 @@ function ImageModal({ photo, onClose, onDelete }) {
   
   if (!photo) return null;
   
-  const imageUrl = photo.url.startsWith('http') 
-    ? photo.url 
-    : `https://photo-gallery-tulh.onrender.com${photo.url}`;
+  const API_URL = process.env.NODE_ENV === 'production'
+  ? process.env.REACT_APP_PRODUCTION_API_URL
+  : process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+const imageUrl = photo.url.startsWith('http') 
+  ? photo.url 
+  : `${API_URL}${photo.url}`;
+
     
   const handleDelete = async () => {
     if (!window.confirm('Are you sure you want to delete this photo?')) {
